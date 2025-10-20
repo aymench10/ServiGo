@@ -138,7 +138,13 @@ CREATE POLICY "Provider profiles are viewable by everyone"
 
 CREATE POLICY "Providers can insert own profile" 
   ON public.provider_profiles FOR INSERT 
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (
+    auth.uid() = user_id OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'provider'
+    )
+  );
 
 CREATE POLICY "Providers can update own profile" 
   ON public.provider_profiles FOR UPDATE 

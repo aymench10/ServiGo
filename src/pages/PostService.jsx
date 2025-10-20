@@ -32,6 +32,28 @@ const PostService = () => {
     }
   }, [user, navigate])
 
+  // Check if provider profile exists on mount
+  React.useEffect(() => {
+    const checkProviderProfile = async () => {
+      if (user && user.role === 'provider') {
+        const { data, error } = await supabase
+          .from('provider_profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle()
+
+        if (!data && !error) {
+          // Profile doesn't exist, redirect to fix page
+          console.warn('Provider profile not found, redirecting to fix page')
+          setTimeout(() => {
+            navigate('/fix-profile')
+          }, 1000)
+        }
+      }
+    }
+    checkProviderProfile()
+  }, [user, navigate])
+
   const handleChange = (e) => {
     setFormData({
       ...formData,

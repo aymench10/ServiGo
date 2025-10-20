@@ -9,8 +9,9 @@ import ProviderDashboard from './pages/ProviderDashboard'
 import ClientDashboard from './pages/ClientDashboard'
 import ClearData from './pages/ClearData'
 import Services from './pages/Services'
-import PostService from './pages/PostService'
-import FixProfile from './pages/FixProfile'
+import CreateProviderProfile from './pages/CreateProviderProfile'
+import SelectServiceType from './pages/SelectServiceType'
+import PostOnsiteService from './pages/PostOnsiteService'
 
 function App() {
   return (
@@ -22,15 +23,33 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/clear-data" element={<ClearData />} />
-          <Route path="/fix-profile" element={<FixProfile />} />
           <Route path="/services" element={<Services />} />
           
-          {/* Protected Routes - Services */}
+          {/* Protected Routes - Provider Profile */}
           <Route
-            path="/services/post"
+            path="/provider/create-profile"
             element={
               <ProtectedRoute requiredRole="provider">
-                <PostService />
+                <CreateProviderProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Routes - Services */}
+          <Route
+            path="/services/select-type"
+            element={
+              <ProtectedRoute requiredRole="provider">
+                <SelectServiceType />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/services/post/onsite"
+            element={
+              <ProtectedRoute requiredRole="provider">
+                <PostOnsiteService />
               </ProtectedRoute>
             }
           />

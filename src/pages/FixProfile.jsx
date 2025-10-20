@@ -57,7 +57,10 @@ const FixProfile = () => {
       setStatus('fixing')
       setMessage('Création du profil prestataire...')
 
-      const { error } = await supabase
+      console.log('Creating profile for user:', user.id, user.email)
+
+      // Try to insert directly
+      const { data, error } = await supabase
         .from('provider_profiles')
         .insert({
           user_id: user.id,
@@ -66,20 +69,27 @@ const FixProfile = () => {
           location: 'Tunis',
           description: 'Services professionnels'
         })
+        .select()
 
-      if (error) throw error
+      console.log('Insert result:', { data, error })
+
+      if (error) {
+        console.error('Insert error details:', error)
+        throw error
+      }
 
       setStatus('success')
       setMessage('✅ Profil prestataire créé avec succès!')
+      setDetails(data[0])
       
-      // Reload profile
+      // Reload profile after 2 seconds
       setTimeout(() => {
         window.location.reload()
       }, 2000)
     } catch (error) {
       console.error('Error creating profile:', error)
       setStatus('error')
-      setMessage('Erreur lors de la création: ' + error.message)
+      setMessage('Erreur: ' + error.message + '\n\nVeuillez exécuter le script SQL FINAL_FIX.sql dans Supabase.')
     }
   }
 

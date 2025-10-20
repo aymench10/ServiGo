@@ -1,5 +1,5 @@
-// Service Categories
-export const SERVICE_CATEGORIES = [
+// Onsite Service Categories
+export const ONSITE_CATEGORIES = [
   'Plomberie',
   'Électricité',
   'Ménage',
@@ -10,15 +10,35 @@ export const SERVICE_CATEGORIES = [
   'Maçonnerie',
   'Déménagement',
   'Réparation électroménager',
-  'Informatique',
+  'Coiffure à domicile',
+  'Esthétique à domicile',
   'Cours particuliers',
-  'Coiffure',
-  'Esthétique',
   'Photographie',
   'Événementiel',
   'Traiteur',
   'Autre'
 ]
+
+// Online Service Categories
+export const ONLINE_CATEGORIES = [
+  'Développement Web',
+  'Design Graphique',
+  'Rédaction de contenu',
+  'Marketing Digital',
+  'Traduction',
+  'Montage Vidéo',
+  'Consulting',
+  'Formation en ligne',
+  'Assistance virtuelle',
+  'SEO',
+  'Gestion des réseaux sociaux',
+  'Comptabilité en ligne',
+  'Coaching',
+  'Autre'
+]
+
+// All categories combined
+export const SERVICE_CATEGORIES = [...ONSITE_CATEGORIES, ...ONLINE_CATEGORIES]
 
 // Tunisian Cities
 export const TUNISIAN_CITIES = [

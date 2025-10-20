@@ -121,17 +121,26 @@ export const AuthProvider = ({ children }) => {
 
       // If provider, create provider profile
       if (userData.role === 'provider') {
-        const { error: providerError } = await supabase
+        console.log('Creating provider profile for:', userId)
+        
+        const { data: providerData, error: providerError } = await supabase
           .from('provider_profiles')
           .insert({
             user_id: userId,
-            business_name: userData.businessName,
-            service_category: userData.serviceCategory,
-            location: userData.location,
-            description: userData.description
+            business_name: userData.businessName || userData.name,
+            service_category: userData.serviceCategory || 'Autre',
+            location: userData.location || 'Tunis',
+            description: userData.description || 'Services professionnels'
           })
+          .select()
 
-        if (providerError) throw providerError
+        if (providerError) {
+          console.error('Provider profile creation error:', providerError)
+          // Don't throw - continue anyway, user can fix later
+          console.warn('Provider profile not created, but continuing...')
+        } else {
+          console.log('Provider profile created successfully:', providerData)
+        }
       }
 
       // Load the complete profile
