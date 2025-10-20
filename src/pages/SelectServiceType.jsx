@@ -1,12 +1,42 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { supabase } from '../lib/supabase'
 import { MapPin, Globe, ArrowLeft } from 'lucide-react'
 import Header from '../components/Header'
 
 const SelectServiceType = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [checkingProfile, setCheckingProfile] = useState(true)
+
+  // Check if provider profile exists
+  useEffect(() => {
+    checkProviderProfile()
+  }, [user])
+
+  const checkProviderProfile = async () => {
+    if (!user) return
+
+    try {
+      const { data, error } = await supabase
+        .from('providers')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (!data && !error) {
+        // No profile found, redirect to create profile
+        navigate('/provider/create-profile')
+        return
+      }
+
+      setCheckingProfile(false)
+    } catch (err) {
+      console.error('Error checking profile:', err)
+      setCheckingProfile(false)
+    }
+  }
 
   if (!user || user.role !== 'provider') {
     return (
@@ -19,6 +49,17 @@ const SelectServiceType = () => {
           >
             Retour à l'accueil
           </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (checkingProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Vérification du profil...</p>
         </div>
       </div>
     )

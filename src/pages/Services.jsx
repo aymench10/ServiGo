@@ -140,7 +140,7 @@ const Services = () => {
           {/* Post Service Button (Provider Only) */}
           {user && user.role === 'provider' && (
             <Link
-              to="/services/post"
+              to="/services/select-type"
               className="mt-4 md:mt-0 inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition"
             >
               <Plus className="w-5 h-5" />
