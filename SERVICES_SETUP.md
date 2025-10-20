@@ -14,7 +14,7 @@
 
 ### 2. **Post Service Form** (`/services/post`)
 - ✅ Provider-only access
-- ✅ Image upload (optional)
+- ✅ **Uses provider's profile photo** as service image (no separate upload)
 - ✅ All required fields:
   - Title
   - Description
@@ -24,7 +24,7 @@
   - Contact phone
   - Contact email
 - ✅ Form validation
-- ✅ Image preview
+- ✅ Profile photo preview
 
 ### 3. **Service Management**
 - ✅ Providers can edit their services
@@ -36,14 +36,11 @@
 
 ## 📋 Setup Steps
 
-### Step 1: Create Storage Bucket for Service Images
+### Step 1: ~~Create Storage Bucket for Service Images~~ (Not needed!)
 
-1. Go to Supabase: https://ghgsxxtempycioizizor.supabase.co
-2. Click **"Storage"** in sidebar
-3. Click **"New bucket"**
-4. Name: `services`
-5. ✅ Check **"Public bucket"**
-6. Click **"Create bucket"**
+**Note:** Service images now use the provider's profile photo automatically. You only need the `profiles` storage bucket (already created for profile photos).
+
+No need to create a separate `services` bucket!
 
 ### Step 2: Run Updated SQL Schema
 
@@ -62,15 +59,15 @@ This will:
 1. Login as a provider account
 2. Go to `/services`
 3. Click **"Publier un Service"**
-4. Fill the form:
-   - Upload an image
+4. See your profile photo displayed (will be used as service image)
+5. Fill the form:
    - Enter title, description
    - Select category and city
    - Set price
    - Add contact info
-5. Click **"Publier le service"**
-6. See your service in the list
-7. Edit or delete your service
+6. Click **"Publier le service"**
+7. See your service in the list with your profile photo
+8. Edit or delete your service
 
 #### As a Client:
 1. Login as a client account

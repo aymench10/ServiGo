@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { SERVICE_CATEGORIES, TUNISIAN_CITIES } from '../constants/serviceData'
 import { 
-  Upload, 
   Image as ImageIcon, 
   ArrowLeft,
   Save
@@ -45,24 +44,40 @@ const PostService = () => {
     setError('')
     setLoading(true)
 
+    console.log('User data:', user)
+    console.log('User ID:', user.id)
+
     try {
       // Get provider profile ID
       const { data: providerProfile, error: profileError } = await supabase
         .from('provider_profiles')
         .select('id')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
+      
+      console.log('Provider profile:', providerProfile)
+      console.log('Profile error:', profileError)
 
-      if (profileError) throw profileError
-
-      // Upload image if provided
-      let imageUrl = null
-      if (imageFile) {
-        imageUrl = await uploadImage()
+      if (profileError) {
+        console.error('Profile error:', profileError)
+        throw new Error('Erreur lors de la récupération du profil: ' + profileError.message)
       }
 
+      if (!providerProfile) {
+        setError('Profil prestataire introuvable.')
+        setLoading(false)
+        // Redirect to fix profile page after showing error
+        setTimeout(() => {
+          navigate('/fix-profile')
+        }, 2000)
+        return
+      }
+
+      // Use the provider's profile photo as service image
+      const imageUrl = user.avatar_url || null
+
       // Create service
-      const { error: serviceError } = await supabase
+      const { data: newService, error: serviceError } = await supabase
         .from('services')
         .insert({
           provider_id: providerProfile.id,
@@ -76,14 +91,18 @@ const PostService = () => {
           image_url: imageUrl,
           is_active: true
         })
+        .select()
 
-      if (serviceError) throw serviceError
+      if (serviceError) {
+        console.error('Service error:', serviceError)
+        throw new Error('Erreur lors de la création du service: ' + serviceError.message)
+      }
 
       // Success - redirect to services page
       navigate('/services')
     } catch (error) {
       console.error('Error creating service:', error)
-      setError('Erreur lors de la création du service: ' + error.message)
+      setError(error.message || 'Erreur lors de la création du service')
     } finally {
       setLoading(false)
     }
@@ -122,37 +141,27 @@ const PostService = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Image du service (optionnel)
-              </label>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  {imagePreview ? (
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-32 h-32 rounded-lg object-cover border-2 border-gray-300"
-                    />
-                  ) : (
-                    <div className="w-32 h-32 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center border-2 border-gray-300">
-                      <ImageIcon className="w-12 h-12 text-gray-400" />
-                    </div>
-                  )}
-                </div>
+            {/* Service Image Info */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                {user.avatar_url ? (
+                  <img
+                    src={user.avatar_url}
+                    alt="Profile"
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <ImageIcon className="w-8 h-8 text-white" />
+                  </div>
+                )}
                 <div className="flex-1">
-                  <label className="cursor-pointer inline-flex items-center space-x-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
-                    <Upload className="w-5 h-5 text-gray-600" />
-                    <span className="text-sm font-medium text-gray-700">Choisir une image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </label>
-                  <p className="text-xs text-gray-500 mt-2">JPG, PNG ou GIF (max. 5 MB)</p>
+                  <p className="text-sm font-medium text-blue-900 mb-1">
+                    📸 Image du service
+                  </p>
+                  <p className="text-sm text-blue-700">
+                    Votre photo de profil sera utilisée comme image du service. Pour la modifier, allez dans les paramètres de votre profil.
+                  </p>
                 </div>
               </div>
             </div>

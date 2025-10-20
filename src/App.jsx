@@ -10,6 +10,7 @@ import ClientDashboard from './pages/ClientDashboard'
 import ClearData from './pages/ClearData'
 import Services from './pages/Services'
 import PostService from './pages/PostService'
+import FixProfile from './pages/FixProfile'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/clear-data" element={<ClearData />} />
+          <Route path="/fix-profile" element={<FixProfile />} />
           <Route path="/services" element={<Services />} />
           
           {/* Protected Routes - Services */}

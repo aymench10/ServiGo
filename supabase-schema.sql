@@ -1,20 +1,17 @@
 -- ServiGO TN Database Schema
 -- Run this SQL in your Supabase SQL Editor
 
--- IMPORTANT: Before running this SQL, create storage buckets:
+-- IMPORTANT: Before running this SQL, create storage bucket:
 -- 
--- Bucket 1: Profile Photos
+-- Profile Photos Bucket:
 -- 1. Go to Storage in Supabase dashboard
 -- 2. Click "New bucket"
 -- 3. Name: "profiles"
 -- 4. Public bucket: YES (check the box)
 -- 5. Click "Create bucket"
 --
--- Bucket 2: Service Images
--- 1. Click "New bucket" again
--- 2. Name: "services"
--- 3. Public bucket: YES (check the box)
--- 4. Click "Create bucket"
+-- Note: Service images use the provider's profile photo automatically.
+-- No need to create a separate "services" bucket!
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
