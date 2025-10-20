@@ -9,6 +9,8 @@ import ProviderDashboard from './pages/ProviderDashboard'
 import ClientDashboard from './pages/ClientDashboard'
 import ClearData from './pages/ClearData'
 import Services from './pages/Services'
+import OnsiteServices from './pages/OnsiteServices'
+import ProviderProfile from './pages/ProviderProfile'
 import CreateProviderProfile from './pages/CreateProviderProfile'
 import SelectServiceType from './pages/SelectServiceType'
 import PostOnsiteService from './pages/PostOnsiteService'
@@ -24,6 +26,8 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/clear-data" element={<ClearData />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/services/onsite" element={<OnsiteServices />} />
+          <Route path="/provider/:providerId" element={<ProviderProfile />} />
           
           {/* Protected Routes - Provider Profile */}
           <Route
