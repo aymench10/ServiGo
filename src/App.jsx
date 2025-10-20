@@ -7,6 +7,9 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ProviderDashboard from './pages/ProviderDashboard'
 import ClientDashboard from './pages/ClientDashboard'
+import ClearData from './pages/ClearData'
+import Services from './pages/Services'
+import PostService from './pages/PostService'
 
 function App() {
   return (
@@ -17,6 +20,18 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/clear-data" element={<ClearData />} />
+          <Route path="/services" element={<Services />} />
+          
+          {/* Protected Routes - Services */}
+          <Route
+            path="/services/post"
+            element={
+              <ProtectedRoute requiredRole="provider">
+                <PostService />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Routes - Provider */}
           <Route

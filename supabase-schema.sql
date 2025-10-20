@@ -1,12 +1,20 @@
 -- ServiGO TN Database Schema
 -- Run this SQL in your Supabase SQL Editor
 
--- IMPORTANT: Before running this SQL, create a storage bucket:
+-- IMPORTANT: Before running this SQL, create storage buckets:
+-- 
+-- Bucket 1: Profile Photos
 -- 1. Go to Storage in Supabase dashboard
 -- 2. Click "New bucket"
 -- 3. Name: "profiles"
 -- 4. Public bucket: YES (check the box)
 -- 5. Click "Create bucket"
+--
+-- Bucket 2: Service Images
+-- 1. Click "New bucket" again
+-- 2. Name: "services"
+-- 3. Public bucket: YES (check the box)
+-- 4. Click "Create bucket"
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -42,13 +50,17 @@ CREATE TABLE public.provider_profiles (
 CREATE TABLE public.services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   provider_id UUID REFERENCES public.provider_profiles(id) ON DELETE CASCADE NOT NULL,
-  name TEXT NOT NULL,
-  description TEXT,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
   category TEXT NOT NULL,
+  city TEXT NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   price_unit TEXT DEFAULT 'DT',
-  duration_minutes INTEGER,
+  contact_phone TEXT,
+  contact_email TEXT,
+  image_url TEXT,
   is_active BOOLEAN DEFAULT TRUE,
+  views_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -239,3 +251,13 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER update_provider_rating_after_review
 AFTER INSERT ON public.reviews
 FOR EACH ROW EXECUTE FUNCTION update_provider_rating();
+
+-- Function to increment service views
+CREATE OR REPLACE FUNCTION increment_service_views(service_id UUID)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE public.services
+  SET views_count = views_count + 1
+  WHERE id = service_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

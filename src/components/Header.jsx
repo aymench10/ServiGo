@@ -8,6 +8,11 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = React.useState(false)
   const [showMessages, setShowMessages] = React.useState(false)
 
+  // Debug: Log user state
+  React.useEffect(() => {
+    console.log('Header - User state:', user)
+  }, [user])
+
   const scrollToSection = (e, sectionId) => {
     e.preventDefault()
     const element = document.getElementById(sectionId)
@@ -30,12 +35,12 @@ const Header = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#accueil" onClick={(e) => scrollToSection(e, 'accueil')} className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Accueil
-            </a>
-            <a href="#services" onClick={(e) => scrollToSection(e, 'services')} className="text-gray-700 hover:text-blue-600 font-medium transition">
+            </Link>
+            <Link to="/services" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Services
-            </a>
+            </Link>
             <a href="#tarifs" onClick={(e) => scrollToSection(e, 'tarifs')} className="text-gray-700 hover:text-blue-600 font-medium transition">
               Tarifs
             </a>
