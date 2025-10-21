@@ -16,6 +16,8 @@ import SelectServiceType from './pages/SelectServiceType'
 import PostOnsiteService from './pages/PostOnsiteService'
 import PostOnlineService from './pages/PostOnlineService'
 import EditProfile from './pages/EditProfile'
+import ContactPage from './pages/ContactPage'
+import PricingPage from './pages/PricingPage'
 
 function App() {
   return (
@@ -30,6 +32,8 @@ function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/services/onsite" element={<OnsiteServices />} />
           <Route path="/provider/:providerId" element={<ProviderProfile />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/tarifs" element={<PricingPage />} />
           
           {/* Protected Routes - Provider Profile */}
           <Route

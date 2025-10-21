@@ -41,12 +41,12 @@ const Header = () => {
             <Link to="/services" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Services
             </Link>
-            <a href="#tarifs" onClick={(e) => scrollToSection(e, 'tarifs')} className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link to="/tarifs" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Tarifs
-            </a>
-            <a href="#contact" onClick={(e) => scrollToSection(e, 'contact')} className="text-gray-700 hover:text-blue-600 font-medium transition">
+            </Link>
+            <Link to="/contact" className="text-gray-700 hover:text-blue-600 font-medium transition">
               Contact
-            </a>
+            </Link>
           </nav>
 
           {/* Right side actions */}
