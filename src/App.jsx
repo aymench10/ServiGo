@@ -18,6 +18,7 @@ import PostOnlineService from './pages/PostOnlineService'
 import EditProfile from './pages/EditProfile'
 import ContactPage from './pages/ContactPage'
 import PricingPage from './pages/PricingPage'
+import ServiceDetails from './pages/ServiceDetails'
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/clear-data" element={<ClearData />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/onsite" element={<OnsiteServices />} />
+          <Route path="/service/:serviceType/:serviceId" element={<ServiceDetails />} />
           <Route path="/provider/:providerId" element={<ProviderProfile />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/tarifs" element={<PricingPage />} />

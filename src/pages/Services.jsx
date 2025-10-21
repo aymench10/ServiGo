@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { ONSITE_CATEGORIES, ONLINE_CATEGORIES, TUNISIAN_CITIES } from '../constants/serviceData'
@@ -352,6 +352,7 @@ const Services = () => {
 
 // Service Card Component
 const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
+  const navigate = useNavigate()
   const provider = service.providers
   const isOwner = currentUser?.role === 'provider' && 
                   currentUser?.id === provider?.user_id
@@ -359,6 +360,8 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
 
   const handleView = () => {
     onView(service.id)
+    // Navigate to service details page
+    navigate(`/service/${service.service_type}/${service.id}`)
   }
 
   // Format phone number for WhatsApp
