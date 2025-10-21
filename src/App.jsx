@@ -14,6 +14,7 @@ import ProviderProfile from './pages/ProviderProfile'
 import CreateProviderProfile from './pages/CreateProviderProfile'
 import SelectServiceType from './pages/SelectServiceType'
 import PostOnsiteService from './pages/PostOnsiteService'
+import PostOnlineService from './pages/PostOnlineService'
 
 function App() {
   return (
@@ -54,6 +55,15 @@ function App() {
             element={
               <ProtectedRoute requiredRole="provider">
                 <PostOnsiteService />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/services/post/online"
+            element={
+              <ProtectedRoute requiredRole="provider">
+                <PostOnlineService />
               </ProtectedRoute>
             }
           />
