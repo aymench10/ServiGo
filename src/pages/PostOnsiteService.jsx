@@ -156,8 +156,24 @@ const PostOnsiteService = () => {
       // Upload image if provided
       const imageUrl = await uploadImage()
 
+      console.log('📝 Creating onsite service with data:', {
+        provider_id: providerProfile.id,
+        title: formData.title,
+        category: formData.category,
+        price: parseFloat(formData.price),
+        city: formData.city,
+        image: imageUrl,
+        hasImage: !!imageUrl
+      })
+
+      if (imageUrl) {
+        console.log('✅ Image URL will be saved:', imageUrl)
+      } else {
+        console.log('⚠️ No image URL - service will be created without image')
+      }
+
       // Create service
-      const { error: serviceError } = await supabase
+      const { data: newService, error: serviceError } = await supabase
         .from('services_onsite')
         .insert({
           provider_id: providerProfile.id,
@@ -170,8 +186,14 @@ const PostOnsiteService = () => {
           image: imageUrl,
           is_active: true
         })
+        .select()
 
-      if (serviceError) throw serviceError
+      if (serviceError) {
+        console.error('❌ Service creation error:', serviceError)
+        throw serviceError
+      }
+
+      console.log('✅ Service created successfully:', newService)
 
       // Success - redirect to services page
       navigate('/services')

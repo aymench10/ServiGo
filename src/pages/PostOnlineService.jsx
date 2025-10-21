@@ -164,8 +164,16 @@ const PostOnlineService = () => {
         title: formData.title,
         category: formData.category,
         price: parseFloat(formData.price),
-        delivery_time: formData.delivery_time
+        delivery_time: formData.delivery_time,
+        image: imageUrl,
+        hasImage: !!imageUrl
       })
+
+      if (imageUrl) {
+        console.log('✅ Image URL will be saved:', imageUrl)
+      } else {
+        console.log('⚠️ No image URL - service will be created without image')
+      }
 
       // Create service
       const { data: newService, error: serviceError } = await supabase
