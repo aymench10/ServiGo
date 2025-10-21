@@ -111,19 +111,19 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-gray-700">
+        <div className="mt-12 pt-8 border-t border-gray-800">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               © 2025 ServiGOTN. All rights reserved.
             </p>
-            <div className="flex space-x-6">
-              <Link to="/privacy" className="text-gray-400 hover:text-white text-sm transition-colors">
+            <div className="flex flex-wrap justify-center gap-6">
+              <Link to="/privacy" className="text-gray-500 hover:text-white text-sm transition-colors">
                 Privacy Policy
               </Link>
-              <Link to="/terms" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/terms" className="text-gray-500 hover:text-white text-sm transition-colors">
                 Terms of Service
               </Link>
-              <Link to="/cookies" className="text-gray-400 hover:text-white text-sm transition-colors">
+              <Link to="/cookies" className="text-gray-500 hover:text-white text-sm transition-colors">
                 Cookie Policy
               </Link>
             </div>

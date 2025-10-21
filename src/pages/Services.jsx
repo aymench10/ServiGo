@@ -346,6 +346,8 @@ const Services = () => {
           </Link>
         )}
       </div>
+      
+      <Footer />
     </div>
   )
 }

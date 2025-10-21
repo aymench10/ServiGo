@@ -20,6 +20,7 @@ import {
   Share2
 } from 'lucide-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 const ServiceDetails = () => {
   const { serviceId, serviceType } = useParams()
@@ -347,6 +348,8 @@ const ServiceDetails = () => {
           onClose={() => setShowBookingModal(false)}
         />
       )}
+      
+      <Footer />
     </div>
   )
 }

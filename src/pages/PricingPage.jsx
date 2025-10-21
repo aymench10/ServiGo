@@ -19,6 +19,7 @@ import {
   Check
 } from 'lucide-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 
 const PricingPage = () => {
   const navigate = useNavigate()
@@ -404,6 +405,8 @@ const PricingPage = () => {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   )
 }
