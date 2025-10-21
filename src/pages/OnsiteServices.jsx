@@ -26,6 +26,7 @@ const OnsiteServices = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('all')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [error, setError] = useState(null)
 
   // Load services
   useEffect(() => {
@@ -40,6 +41,10 @@ const OnsiteServices = () => {
   const loadServices = async () => {
     try {
       setLoading(true)
+      setError(null)
+      
+      console.log('🔍 Loading services from services_onsite table...')
+      
       const { data, error } = await supabase
         .from('services_onsite')
         .select(`
@@ -58,10 +63,18 @@ const OnsiteServices = () => {
         .eq('is_active', true)
         .order('created_at', { ascending: false })
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Error loading services:', error)
+        throw error
+      }
+      
+      console.log('✅ Services loaded:', data?.length || 0, 'services')
+      console.log('📊 Data:', data)
+      
       setServices(data || [])
     } catch (error) {
       console.error('Error loading services:', error)
+      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -203,6 +216,17 @@ const OnsiteServices = () => {
             {filteredServices.length} service{filteredServices.length > 1 ? 's' : ''} trouvé{filteredServices.length > 1 ? 's' : ''}
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+            <h3 className="text-red-800 font-semibold mb-2">Erreur de chargement</h3>
+            <p className="text-red-600 text-sm">{error}</p>
+            <p className="text-red-600 text-sm mt-2">
+              Vérifiez que la table 'services_onsite' existe et contient des données.
+            </p>
+          </div>
+        )}
 
         {/* Services Grid */}
         {loading ? (
