@@ -2,9 +2,9 @@ import React from 'react'
 import Header from '../components/Header'
 import Hero from '../components/Hero'
 import Features from '../components/Features'
+import CitiesSection from '../components/CitiesSection'
 import Stats from '../components/Stats'
-import Pricing from '../components/Pricing'
-import Contact from '../components/Contact'
+import CTASection from '../components/CTASection'
 
 const Home = () => {
   return (
@@ -12,9 +12,9 @@ const Home = () => {
       <Header />
       <Hero />
       <Features />
+      <CitiesSection />
       <Stats />
-      <Pricing />
-      <Contact />
+      <CTASection />
     </div>
   )
 }

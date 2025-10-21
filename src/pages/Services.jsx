@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { ONSITE_CATEGORIES, ONLINE_CATEGORIES, TUNISIAN_CITIES } from '../constants/serviceData'
@@ -22,6 +22,7 @@ import Header from '../components/Header'
 
 const Services = () => {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
   const [services, setServices] = useState([])
   const [filteredServices, setFilteredServices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -35,6 +36,15 @@ const Services = () => {
   useEffect(() => {
     loadServices()
   }, [])
+
+  // Handle URL parameters for city filter
+  useEffect(() => {
+    const cityParam = searchParams.get('city')
+    if (cityParam && TUNISIAN_CITIES.includes(cityParam)) {
+      setSelectedCity(cityParam)
+      setShowFilters(true) // Show filters when coming from city selection
+    }
+  }, [searchParams])
 
   // Apply filters
   useEffect(() => {
@@ -365,18 +375,18 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all overflow-hidden group">
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group border border-gray-100">
       {/* Service Image with Badges */}
-      <div className="relative">
+      <div className="relative h-48 overflow-hidden">
         {service.image && !imageError ? (
           <img
             src={service.image}
             alt={service.title}
-            className="w-full h-48 object-cover"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
             onError={handleImageError}
           />
         ) : (
-          <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
             <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-md">
               {service.service_type === 'online' ? (
                 <Globe className="w-10 h-10 text-blue-600" />
@@ -387,68 +397,59 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
           </div>
         )}
         
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md flex items-center">
-            ⭐ PREMIUM
-          </span>
-          {service.service_type === 'online' && (
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md flex items-center">
-              🔥 FEATURED
+        {/* Top Badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+          {/* Left Badges */}
+          <div className="flex gap-2">
+            <span className="px-3 py-1.5 rounded-md text-xs font-bold bg-blue-600 text-white shadow-lg flex items-center gap-1">
+              <span className="text-yellow-300">⭐</span> PREMIUM
             </span>
-          )}
+            {service.service_type === 'online' && (
+              <span className="px-3 py-1.5 rounded-md text-xs font-bold bg-orange-500 text-white shadow-lg flex items-center gap-1">
+                <span>🔥</span> FEATURED
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Service Type Badge */}
-        <div className="absolute top-3 right-3">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium shadow-md ${
-            service.service_type === 'online' 
-              ? 'bg-purple-100 text-purple-700' 
-              : 'bg-blue-100 text-blue-700'
-          }`}>
-            {service.service_type === 'online' ? '🌐 On-site' : '📍 On-site'}
+        {/* Bottom Badge - On-site */}
+        <div className="absolute bottom-3 left-3">
+          <span className="px-3 py-1.5 rounded-md text-xs font-semibold bg-white text-gray-700 shadow-md flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            {service.service_type === 'online' ? 'Online' : 'On-site'}
           </span>
         </div>
-      </div>
 
-      <div className="p-5">
-        {/* Owner Actions */}
+        {/* Owner Actions Overlay */}
         {isOwner && (
-          <div className="flex justify-end space-x-2 mb-3">
+          <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <Link
               to={`/services/${service.service_type}/edit/${service.id}`}
-              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+              className="p-2 bg-white rounded-lg shadow-lg text-blue-600 hover:bg-blue-50 transition"
             >
               <Edit className="w-4 h-4" />
             </Link>
             <button
               onClick={() => onDelete(service.id, service.service_type)}
-              className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
+              className="p-2 bg-white rounded-lg shadow-lg text-red-600 hover:bg-red-50 transition"
             >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
         )}
+      </div>
 
+      <div className="p-5">
         {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">
+        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
           {service.title}
         </h3>
 
         {/* Provider Info */}
         <div className="flex items-center space-x-2 mb-3">
-          <div className="flex items-center text-sm text-blue-600">
-            {service.service_type === 'online' ? (
-              <>
-                <Globe className="w-4 h-4 mr-1" />
-                <span className="font-medium">{service.providers?.full_name || 'Provider'}</span>
-              </>
-            ) : (
-              <>
-                <User className="w-4 h-4 mr-1" />
-                <span className="font-medium">{service.providers?.full_name || 'Provider'}</span>
-              </>
-            )}
+          <div className="flex items-center text-sm text-gray-600">
+            <User className="w-4 h-4 mr-1.5 text-gray-400" />
+            <span className="font-medium">{service.providers?.full_name || 'Provider'}</span>
           </div>
         </div>
 
@@ -459,8 +460,9 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
 
         {/* Availability Badge */}
         <div className="mb-4">
-          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-            ✓ Same-day available
+          <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+            <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+            Same-day available
           </span>
         </div>
 
@@ -468,15 +470,16 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <div>
             <p className="text-xs text-gray-500 mb-1">Starting from</p>
-            <p className="text-2xl font-bold text-gray-900">
-              {service.price} <span className="text-sm font-normal text-gray-600">TND/hour</span>
+            <p className="text-xl font-bold text-blue-600">
+              {service.price} <span className="text-sm font-normal text-gray-600">TND/hr</span>
             </p>
           </div>
           <button
             onClick={handleView}
-            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all transform hover:scale-105"
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center gap-2"
           >
-            View Details →
+            View Details
+            <span className="text-lg">→</span>
           </button>
         </div>
       </div>
