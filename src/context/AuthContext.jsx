@@ -17,6 +17,14 @@ export const AuthProvider = ({ children }) => {
 
   // Load user session on mount
   useEffect(() => {
+    // Check if Supabase is properly configured
+    if (supabase._isMock) {
+      // Supabase is not configured (mock client)
+      console.log('🔧 Supabase not configured - skipping auth initialization')
+      setLoading(false)
+      return
+    }
+
     // Check active session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -24,6 +32,9 @@ export const AuthProvider = ({ children }) => {
       } else {
         setLoading(false)
       }
+    }).catch(error => {
+      console.error('Error getting session:', error)
+      setLoading(false)
     })
 
     // Listen for auth changes

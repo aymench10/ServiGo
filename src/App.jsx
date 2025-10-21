@@ -15,6 +15,7 @@ import CreateProviderProfile from './pages/CreateProviderProfile'
 import SelectServiceType from './pages/SelectServiceType'
 import PostOnsiteService from './pages/PostOnsiteService'
 import PostOnlineService from './pages/PostOnlineService'
+import EditProfile from './pages/EditProfile'
 
 function App() {
   return (
@@ -84,6 +85,16 @@ function App() {
             element={
               <ProtectedRoute requiredRole="client">
                 <ClientDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Routes - Edit Profile (Both roles) */}
+          <Route
+            path="/edit-profile"
+            element={
+              <ProtectedRoute>
+                <EditProfile />
               </ProtectedRoute>
             }
           />
