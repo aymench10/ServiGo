@@ -5,6 +5,7 @@ import Features from '../components/Features'
 import CitiesSection from '../components/CitiesSection'
 import Stats from '../components/Stats'
 import CTASection from '../components/CTASection'
+import Footer from '../components/Footer'
 
 const Home = () => {
   return (
@@ -15,6 +16,7 @@ const Home = () => {
       <CitiesSection />
       <Stats />
       <CTASection />
+      <Footer />
     </div>
   )
 }
