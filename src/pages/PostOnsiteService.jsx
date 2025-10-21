@@ -87,26 +87,58 @@ const PostOnsiteService = () => {
   }
 
   const uploadImage = async () => {
-    if (!imageFile) return null
+    if (!imageFile) {
+      console.log('ℹ️ No image file to upload')
+      return null
+    }
 
     try {
+      console.log('📤 Uploading image:', imageFile.name)
+      
       const fileExt = imageFile.name.split('.').pop()
       const fileName = `${user.id}-${Date.now()}.${fileExt}`
-      const filePath = `service-images/${fileName}`
+      const filePath = `${fileName}`
 
-      const { error: uploadError } = await supabase.storage
-        .from('profiles')
-        .upload(filePath, imageFile)
+      // Try to upload to service-images bucket first, fallback to profiles
+      let bucket = 'service-images'
+      let { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        })
 
-      if (uploadError) throw uploadError
+      // If service-images bucket doesn't exist, use profiles bucket
+      if (uploadError && uploadError.message.includes('not found')) {
+        console.log('⚠️ service-images bucket not found, using profiles bucket')
+        bucket = 'profiles'
+        const result = await supabase.storage
+          .from(bucket)
+          .upload(`service-images/${filePath}`, imageFile, {
+            cacheControl: '3600',
+            upsert: false
+          })
+        uploadData = result.data
+        uploadError = result.error
+      }
 
+      if (uploadError) {
+        console.error('❌ Upload error:', uploadError)
+        throw uploadError
+      }
+
+      console.log('✅ Image uploaded successfully:', uploadData)
+
+      // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('profiles')
-        .getPublicUrl(filePath)
+        .from(bucket)
+        .getPublicUrl(bucket === 'profiles' ? `service-images/${filePath}` : filePath)
 
+      console.log('🔗 Public URL:', publicUrl)
       return publicUrl
     } catch (error) {
-      console.error('Error uploading image:', error)
+      console.error('❌ Error uploading image:', error)
+      setError('Failed to upload image: ' + error.message)
       return null
     }
   }

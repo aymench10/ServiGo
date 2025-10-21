@@ -345,6 +345,7 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
   const provider = service.providers
   const isOwner = currentUser?.role === 'provider' && 
                   currentUser?.id === provider?.user_id
+  const [imageError, setImageError] = useState(false)
 
   const handleView = () => {
     onView(service.id)
@@ -358,15 +359,21 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
     return `https://wa.me/${phone}?text=${message}`
   }
 
+  const handleImageError = () => {
+    console.error('Failed to load image:', service.image)
+    setImageError(true)
+  }
+
   return (
     <div className="bg-white rounded-2xl border border-gray-200 hover:border-blue-300 hover:shadow-lg transition-all overflow-hidden group">
       {/* Service Image with Badges */}
       <div className="relative">
-        {service.image ? (
+        {service.image && !imageError ? (
           <img
             src={service.image}
             alt={service.title}
             className="w-full h-48 object-cover"
+            onError={handleImageError}
           />
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
