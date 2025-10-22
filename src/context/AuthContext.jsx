@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabaseClient } from '../lib/supabase-client'
+import { supabase } from '../lib/supabase' // Keep for backward compatibility
 
 const AuthContext = createContext(null)
 
@@ -17,43 +18,69 @@ export const AuthProvider = ({ children }) => {
 
   // Load user session on mount
   useEffect(() => {
-    // Check if Supabase is properly configured
-    if (supabase._isMock) {
-      // Supabase is not configured (mock client)
-      console.log('🔧 Supabase not configured - skipping auth initialization')
-      setLoading(false)
-      return
+    let mounted = true
+
+    const initAuth = async () => {
+      try {
+        // Check if Supabase is properly configured
+        if (supabase._isMock) {
+          console.log('🔧 Supabase not configured - skipping auth initialization')
+          if (mounted) setLoading(false)
+          return
+        }
+
+        // Get current session with secure client
+        const { data: { session }, error } = await supabaseClient.auth.getSession()
+        
+        if (error) throw error
+
+        if (session?.user && mounted) {
+          await loadUserProfile(session.user.id)
+        } else if (mounted) {
+          setLoading(false)
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error)
+        if (mounted) setLoading(false)
+      }
     }
 
-    // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        loadUserProfile(session.user.id)
-      } else {
-        setLoading(false)
-      }
-    }).catch(error => {
-      console.error('Error getting session:', error)
-      setLoading(false)
-    })
+    initAuth()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        loadUserProfile(session.user.id)
-      } else {
-        setUser(null)
-        setLoading(false)
-      }
-    })
+    // Listen for auth changes with secure client
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth event:', event)
+        
+        if (!mounted) return
 
-    return () => subscription.unsubscribe()
+        if (session?.user) {
+          await loadUserProfile(session.user.id)
+        } else {
+          setUser(null)
+          setLoading(false)
+        }
+      }
+    )
+
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
-  // Load user profile from database
+  // Load user profile from database with secure client
   const loadUserProfile = async (userId) => {
     try {
-      const { data: profile, error } = await supabase
+      // Verify user authentication first
+      const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser()
+      
+      if (authError) throw authError
+      if (!authUser || authUser.id !== userId) {
+        throw new Error('User authentication mismatch')
+      }
+
+      const { data: profile, error } = await supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -63,30 +90,38 @@ export const AuthProvider = ({ children }) => {
 
       // If provider, load provider profile too
       if (profile.role === 'provider') {
-        const { data: providerProfile } = await supabase
+        const { data: providerProfile } = await supabaseClient
           .from('provider_profiles')
           .select('*')
           .eq('user_id', userId)
           .single()
 
-        setUser({ ...profile, ...providerProfile })
+        setUser({ ...profile, providerProfile })
       } else {
         setUser(profile)
       }
     } catch (error) {
       console.error('Error loading profile:', error)
+      setUser(null)
     } finally {
       setLoading(false)
     }
   }
 
-  // Signup function
+  // Signup function with enhanced security
   const signup = async (userData) => {
     try {
-      // Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Create auth user with secure client
+      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
         email: userData.email,
         password: userData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            full_name: userData.name,
+            role: userData.role
+          }
+        }
       })
 
       if (authError) throw authError
@@ -101,12 +136,12 @@ export const AuthProvider = ({ children }) => {
           const fileName = `${userId}-${Date.now()}.${fileExt}`
           const filePath = `avatars/${fileName}`
 
-          const { error: uploadError } = await supabase.storage
+          const { error: uploadError } = await supabaseClient.storage
             .from('profiles')
             .upload(filePath, userData.profilePhoto)
 
           if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
+            const { data: { publicUrl } } = supabaseClient.storage
               .from('profiles')
               .getPublicUrl(filePath)
             avatarUrl = publicUrl
@@ -116,8 +151,8 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // Create profile
-      const { error: profileError } = await supabase
+      // Create profile with secure client
+      const { error: profileError } = await supabaseClient
         .from('profiles')
         .insert({
           id: userId,
@@ -130,11 +165,11 @@ export const AuthProvider = ({ children }) => {
 
       if (profileError) throw profileError
 
-      // If provider, create provider profile
+      // If provider, create provider profile with secure client
       if (userData.role === 'provider') {
         console.log('Creating provider profile for:', userId)
         
-        const { data: providerData, error: providerError } = await supabase
+        const { data: providerData, error: providerError } = await supabaseClient
           .from('provider_profiles')
           .insert({
             user_id: userId,
@@ -164,10 +199,10 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Login function
+  // Login function with secure client
   const login = async (email, password) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
         email,
         password,
       })
@@ -183,10 +218,10 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Logout function
+  // Logout function with secure client
   const logout = async () => {
     try {
-      await supabase.auth.signOut()
+      await supabaseClient.auth.signOut()
       setUser(null)
     } catch (error) {
       console.error('Logout error:', error)
