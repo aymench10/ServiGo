@@ -17,11 +17,7 @@ import {
   XCircle,
   Clock
 } from 'lucide-react'
-<<<<<<< HEAD
 import BookingsManagement from '../components/BookingsManagement'
-=======
-import Header from '../components/Header'
->>>>>>> 2bb7d8164fbf11c8e67f441b57b6a62609429154
 
 const ProviderDashboard = () => {
   const { user, logout } = useAuth()
