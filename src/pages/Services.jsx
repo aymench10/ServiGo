@@ -362,9 +362,12 @@ const ServiceCard = ({ service, currentUser, onDelete, onView }) => {
   const [imageError, setImageError] = useState(false)
 
   const handleView = () => {
+    console.log('View Details clicked:', service.id, service.service_type)
     onView(service.id)
     // Navigate to service details page
-    navigate(`/service/${service.service_type}/${service.id}`)
+    const path = `/service/${service.service_type}/${service.id}`
+    console.log('Navigating to:', path)
+    navigate(path)
   }
 
   // Format phone number for WhatsApp

@@ -89,8 +89,9 @@ const Header = () => {
 
                 {/* Profile Photo */}
                 <Link
-                  to={user.role === 'client' ? '/client/dashboard' : '/provider/dashboard'}
+                  to={user?.role === 'client' ? '/client/dashboard' : '/provider/dashboard'}
                   className="flex items-center space-x-2 hover:opacity-80 transition"
+                  onClick={() => console.log('Navigating to:', user?.role === 'client' ? '/client/dashboard' : '/provider/dashboard', 'User role:', user?.role)}
                 >
                   {user.avatar_url ? (
                     <img
