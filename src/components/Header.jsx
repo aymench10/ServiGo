@@ -1,60 +1,90 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { ChevronDown, LogIn, User, Briefcase, Bell, MessageSquare } from 'lucide-react'
+import React, { useState } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { ChevronDown, LogIn, User, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import NotificationBell from './NotificationBell'
 
 const Header = () => {
-  const { user } = useAuth()
-  const [showNotifications, setShowNotifications] = React.useState(false)
-  const [showMessages, setShowMessages] = React.useState(false)
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // Debug: Log user state
-  React.useEffect(() => {
-    console.log('Header - User state:', user)
-  }, [user])
+  const handleLogout = async () => {
+    await logout()
+    navigate('/login')
+  }
 
-  const scrollToSection = (e, sectionId) => {
-    e.preventDefault()
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+  const isActive = (path) => {
+    return location.pathname === path
   }
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center">
-            <Link to="/" className="text-2xl font-bold">
-              <span className="text-blue-500">ServiGO</span>
-              <span className="text-gray-800">TN</span>
-            </Link>
-          </div>
+          <Link to="/" className="flex items-center space-x-2">
+            <span className="text-2xl font-bold">
+              <span className="text-blue-600">Servi</span>
+              <span className="text-gray-900">GOTN</span>
+            </span>
+            {user && (
+              <span className="hidden md:inline-block text-sm text-gray-500 ml-3 px-3 py-1 bg-gray-100 rounded-full">
+                | Espace {user.role === 'provider' ? 'Prestataire' : 'Client'}
+              </span>
+            )}
+          </Link>
 
-          {/* Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link
+              to="/"
+              className={`text-sm font-medium transition-colors pb-1 ${
+                isActive('/')
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
               Accueil
             </Link>
-            <Link to="/services" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link
+              to="/services"
+              className={`text-sm font-medium transition-colors pb-1 ${
+                isActive('/services')
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
               Services
             </Link>
-            <Link to="/tarifs" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link
+              to="/tarifs"
+              className={`text-sm font-medium transition-colors pb-1 ${
+                isActive('/tarifs')
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
               Tarifs
             </Link>
-            <Link to="/contact" className="text-gray-700 hover:text-blue-600 font-medium transition">
+            <Link
+              to="/contact"
+              className={`text-sm font-medium transition-colors pb-1 ${
+                isActive('/contact')
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-700 hover:text-blue-600'
+              }`}
+            >
               Contact
             </Link>
           </nav>
 
-          {/* Right side actions */}
+          {/* Right Side - User Info & Auth */}
           <div className="flex items-center space-x-4">
             {user ? (
-              /* Logged in - Show profile, messages, notifications */
               <>
+<<<<<<< HEAD
                 {/* Dashboard Button */}
                 {user.role === 'client' ? (
                   <Link
@@ -77,6 +107,21 @@ const Header = () => {
                 {/* Notifications */}
                 <NotificationBell />
 
+=======
+                {/* User Email */}
+                <span className="hidden md:inline-block text-sm text-gray-600">
+                  {user.email}
+                </span>
+                
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden md:inline">Déconnexion</span>
+                </button>
+>>>>>>> 2bb7d8164fbf11c8e67f441b57b6a62609429154
                 {/* Profile Photo */}
                 <Link
                   to={user.role === 'client' ? '/client/dashboard' : '/provider/dashboard'}
@@ -124,8 +169,74 @@ const Header = () => {
                 </Link>
               </>
             )}
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <nav className="flex flex-col space-y-2">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  isActive('/')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Accueil
+              </Link>
+              <Link
+                to="/services"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  isActive('/services')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Services
+              </Link>
+              <Link
+                to="/tarifs"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  isActive('/tarifs')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Tarifs
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg ${
+                  isActive('/contact')
+                    ? 'bg-blue-50 text-blue-600'
+                    : 'text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Contact
+              </Link>
+              
+              {user && (
+                <div className="pt-3 border-t border-gray-200 mt-2">
+                  <p className="px-4 py-2 text-xs text-gray-500">{user.email}</p>
+                </div>
+              )}
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   )
