@@ -322,20 +322,43 @@ const ServiceDetails = () => {
                 )}
               </div>
 
-              {/* Book Now Button */}
-              <button
-                onClick={handleBookNow}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Réserver maintenant</span>
-              </button>
+              {/* Book Now and Message Buttons - Only show if not the provider's own service */}
+              {user?.id !== provider?.user_id && (
+                <>
+                  {/* Book Now Button */}
+                  <button
+                    onClick={handleBookNow}
+                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+                  >
+                    <Calendar className="w-5 h-5" />
+                    <span>Réserver maintenant</span>
+                  </button>
 
-              {/* Message Button */}
-              <button className="w-full mt-3 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-600 transition-all flex items-center justify-center space-x-2">
-                <MessageSquare className="w-5 h-5" />
-                <span>Envoyer un message</span>
-              </button>
+                  {/* Message Button */}
+                  <button className="w-full mt-3 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-blue-500 hover:text-blue-600 transition-all flex items-center justify-center space-x-2">
+                    <MessageSquare className="w-5 h-5" />
+                    <span>Envoyer un message</span>
+                  </button>
+                </>
+              )}
+
+              {/* Edit Service Button - Only show for provider's own service */}
+              {user?.id === provider?.user_id && (
+                <div className="space-y-3">
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl text-center">
+                    <p className="text-sm text-blue-800 font-medium">
+                      C'est votre service
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => window.location.href = `/services/${service.service_type}/edit/${service.id}`}
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all flex items-center justify-center space-x-2"
+                  >
+                    <Edit className="w-5 h-5" />
+                    <span>Modifier mon service</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import { 
   MapPin, 
   Tag, 
@@ -11,12 +12,14 @@ import {
   ArrowLeft,
   Briefcase,
   Calendar,
-  Eye
+  Eye,
+  Edit
 } from 'lucide-react'
 import Header from '../components/Header'
 
 const ProviderProfile = () => {
   const { providerId } = useParams()
+  const { user } = useAuth()
   const [provider, setProvider] = useState(null)
   const [services, setServices] = useState([])
   const [loading, setLoading] = useState(true)
@@ -159,38 +162,59 @@ const ProviderProfile = () => {
               </div>
             )}
 
-            {/* Contact Buttons */}
+            {/* Contact Buttons - Only show if not viewing own profile */}
             <div className="mt-6 flex flex-wrap gap-3">
-              {provider.phone && (
+              {user?.id !== provider?.user_id ? (
+                // Show contact buttons for other users
                 <>
-                  <a
-                    href={`tel:${provider.phone}`}
+                  {provider.phone && (
+                    <>
+                      <a
+                        href={`tel:${provider.phone}`}
+                        className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
+                      >
+                        <Phone className="w-5 h-5" />
+                        <span>Appeler</span>
+                      </a>
+                      
+                      <a
+                        href={getWhatsAppLink()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </>
+                  )}
+                  
+                  {provider.email && (
+                    <a
+                      href={`mailto:${provider.email}`}
+                      className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
+                    >
+                      <Mail className="w-5 h-5" />
+                      <span>Email</span>
+                    </a>
+                  )}
+                </>
+              ) : (
+                // Show edit profile button for own profile
+                <div className="w-full">
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-3">
+                    <p className="text-sm text-blue-800 font-medium text-center">
+                      C'est votre profil
+                    </p>
+                  </div>
+                  <Link
+                    to="/edit-profile"
                     className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium"
                   >
-                    <Phone className="w-5 h-5" />
-                    <span>Appeler</span>
-                  </a>
-                  
-                  <a
-                    href={getWhatsAppLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-medium"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    <span>WhatsApp</span>
-                  </a>
-                </>
-              )}
-              
-              {provider.email && (
-                <a
-                  href={`mailto:${provider.email}`}
-                  className="inline-flex items-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium"
-                >
-                  <Mail className="w-5 h-5" />
-                  <span>Email</span>
-                </a>
+                    <Edit className="w-5 h-5" />
+                    <span>Modifier mon profil</span>
+                  </Link>
+                </div>
               )}
             </div>
           </div>
