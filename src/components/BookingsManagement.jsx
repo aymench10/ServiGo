@@ -33,6 +33,8 @@ const BookingsManagement = ({ userRole }) => {
   const loadBookings = async () => {
     try {
       setLoading(true)
+      console.log('🔍 Loading bookings for user:', user?.id, 'Role:', userRole)
+      console.log('🔍 User object:', user)
       
       // Load onsite bookings
       const onsiteQuery = supabase
@@ -86,9 +88,11 @@ const BookingsManagement = ({ userRole }) => {
 
       // Filter based on user role
       if (userRole === 'provider') {
+        console.log('🔍 Filtering by provider_id:', user.id)
         onsiteQuery.eq('provider_id', user.id)
         onlineQuery.eq('provider_id', user.id)
       } else {
+        console.log('🔍 Filtering by client_id:', user.id)
         onsiteQuery.eq('client_id', user.id)
         onlineQuery.eq('client_id', user.id)
       }
@@ -98,8 +102,17 @@ const BookingsManagement = ({ userRole }) => {
         onlineQuery
       ])
 
-      if (onsiteResult.error) throw onsiteResult.error
-      if (onlineResult.error) throw onlineResult.error
+      console.log('🔍 Onsite query result:', onsiteResult)
+      console.log('🔍 Online query result:', onlineResult)
+
+      if (onsiteResult.error) {
+        console.error('❌ Onsite error:', onsiteResult.error)
+        throw onsiteResult.error
+      }
+      if (onlineResult.error) {
+        console.error('❌ Online error:', onlineResult.error)
+        throw onlineResult.error
+      }
 
       // Combine and tag bookings
       const onsiteBookings = (onsiteResult.data || []).map(b => ({ ...b, booking_type: 'onsite' }))
@@ -108,6 +121,7 @@ const BookingsManagement = ({ userRole }) => {
       const allBookings = [...onsiteBookings, ...onlineBookings]
       allBookings.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 
+      console.log('Loaded bookings:', allBookings.length, allBookings)
       setBookings(allBookings)
     } catch (error) {
       console.error('Error loading bookings:', error)

@@ -50,12 +50,13 @@ const BookingModal = ({ isOpen, onClose, service, serviceType, user }) => {
       }
 
       // Create booking
+      console.log('📝 Creating booking with provider_id:', service.user_id || service.provider_id, 'from service:', service)
       const { data, error: bookingError } = await supabase
         .from('bookings_onsite')
         .insert([
           {
             client_id: user.id,
-            provider_id: service.provider_id,
+            provider_id: service.user_id || service.provider_id,
             service_id: service.id,
             service_type: service.category,
             location: location,
@@ -102,7 +103,7 @@ const BookingModal = ({ isOpen, onClose, service, serviceType, user }) => {
         .insert([
           {
             client_id: user.id,
-            provider_id: service.provider_id,
+            provider_id: service.user_id,
             service_id: service.id,
             project_title: projectTitle,
             project_description: projectDescription,
