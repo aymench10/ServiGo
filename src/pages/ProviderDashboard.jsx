@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { 
   LogOut, 
   Briefcase, 
@@ -17,11 +17,21 @@ import {
   XCircle,
   Clock
 } from 'lucide-react'
+import BookingsManagement from '../components/BookingsManagement'
 
 const ProviderDashboard = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [activeTab, setActiveTab] = useState('overview')
+
+  // Check for tab parameter in URL
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   const handleLogout = () => {
     logout()
@@ -274,59 +284,7 @@ const ProviderDashboard = () => {
 
             {/* Bookings Tab */}
             {activeTab === 'bookings' && (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Toutes les demandes de réservation
-                  </h3>
-                  <select className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <option>Toutes</option>
-                    <option>En attente</option>
-                    <option>Confirmées</option>
-                    <option>Annulées</option>
-                  </select>
-                </div>
-                <div className="space-y-4">
-                  {bookingRequests.map((booking) => (
-                    <div key={booking.id} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-3 mb-2">
-                            <h4 className="font-semibold text-gray-900">{booking.clientName}</h4>
-                            <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(booking.status)}`}>
-                              {getStatusText(booking.status)}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-1">{booking.service}</p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
-                            <span className="flex items-center">
-                              <Calendar className="w-4 h-4 mr-1" />
-                              {booking.date}
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {booking.time}
-                            </span>
-                            <span className="font-semibold text-green-600">{booking.price}</span>
-                          </div>
-                        </div>
-                        {booking.status === 'pending' && (
-                          <div className="flex space-x-2">
-                            <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center space-x-2">
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Accepter</span>
-                            </button>
-                            <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center space-x-2">
-                              <XCircle className="w-4 h-4" />
-                              <span>Refuser</span>
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <BookingsManagement userRole="provider" />
             )}
 
             {/* Services Tab */}

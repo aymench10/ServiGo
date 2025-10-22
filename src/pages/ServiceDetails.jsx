@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
+import BookingModal from '../components/BookingModal'
 
 const ServiceDetails = () => {
   const { serviceId, serviceType } = useParams()
@@ -343,150 +344,18 @@ const ServiceDetails = () => {
       {/* Booking Modal */}
       {showBookingModal && (
         <BookingModal
-          service={service}
-          provider={provider}
+          isOpen={showBookingModal}
           onClose={() => setShowBookingModal(false)}
+          service={{
+            ...service,
+            provider_id: provider?.user_id
+          }}
+          serviceType={service.service_type}
+          user={user}
         />
       )}
       
       <Footer />
-    </div>
-  )
-}
-
-// Booking Modal Component
-const BookingModal = ({ service, provider, onClose }) => {
-  const { user } = useAuth()
-  const [formData, setFormData] = useState({
-    date: '',
-    time: '',
-    message: ''
-  })
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      const bookingData = {
-        client_id: user.id,
-        provider_id: provider.user_id,
-        service_id: service.id,
-        service_type: service.service_type,
-        service_title: service.title,
-        date: formData.date,
-        time: formData.time,
-        message: formData.message,
-        status: 'pending',
-        price: service.price
-      }
-
-      const { error } = await supabase
-        .from('bookings')
-        .insert(bookingData)
-
-      if (error) throw error
-
-      setSuccess(true)
-      setTimeout(() => {
-        onClose()
-      }, 2000)
-    } catch (error) {
-      console.error('Error creating booking:', error)
-      alert('Erreur lors de la réservation')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
-        {success ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-green-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Réservation envoyée!</h3>
-            <p className="text-gray-600">Le prestataire vous contactera bientôt.</p>
-          </div>
-        ) : (
-          <>
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">Réserver ce service</h3>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date souhaitée *
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  required
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Heure souhaitée *
-                </label>
-                <input
-                  type="time"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Message (optionnel)
-                </label>
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows="3"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  placeholder="Décrivez vos besoins..."
-                />
-              </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50"
-                >
-                  {loading ? 'Envoi...' : 'Confirmer'}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-      </div>
     </div>
   )
 }
