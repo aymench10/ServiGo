@@ -49,14 +49,31 @@ const BookingModal = ({ isOpen, onClose, service, serviceType, user }) => {
         throw new Error('Please fill in all required fields')
       }
 
+      // Get the provider's user_id from the service's provider_id
+      console.log('📝 Service data:', service)
+      
+      // First, get the provider's user_id from the providers table
+      const { data: providerData, error: providerError } = await supabase
+        .from('providers')
+        .select('user_id')
+        .eq('id', service.provider_id)
+        .single()
+      
+      if (providerError) {
+        console.error('❌ Error fetching provider:', providerError)
+        throw new Error('Could not find provider information')
+      }
+      
+      const providerUserId = providerData.user_id
+      console.log('📝 Creating booking with provider_user_id:', providerUserId)
+      
       // Create booking
-      console.log('📝 Creating booking with provider_id:', service.user_id || service.provider_id, 'from service:', service)
       const { data, error: bookingError } = await supabase
         .from('bookings_onsite')
         .insert([
           {
             client_id: user.id,
-            provider_id: service.user_id || service.provider_id,
+            provider_id: providerUserId,
             service_id: service.id,
             service_type: service.category,
             location: location,
@@ -97,13 +114,28 @@ const BookingModal = ({ isOpen, onClose, service, serviceType, user }) => {
         throw new Error('Please fill in all required fields')
       }
 
+      // Get the provider's user_id from the service's provider_id
+      const { data: providerData, error: providerError } = await supabase
+        .from('providers')
+        .select('user_id')
+        .eq('id', service.provider_id)
+        .single()
+      
+      if (providerError) {
+        console.error('❌ Error fetching provider:', providerError)
+        throw new Error('Could not find provider information')
+      }
+      
+      const providerUserId = providerData.user_id
+      console.log('📝 Creating online booking with provider_user_id:', providerUserId)
+
       // Create booking
       const { data, error: bookingError } = await supabase
         .from('bookings_online')
         .insert([
           {
             client_id: user.id,
-            provider_id: service.user_id,
+            provider_id: providerUserId,
             service_id: service.id,
             project_title: projectTitle,
             project_description: projectDescription,
