@@ -7,10 +7,18 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "fix-bookings": "node scripts/fix-bookings.js"
+    "fix-bookings": "node scripts/fix-bookings.js",
+    "test-supabase": "node test-supabase.js",
+    "sql": "node run-sql.js",
+    "sql:ps": "powershell -ExecutionPolicy Bypass -File run-sql.ps1",
+    "supabase:status": "supabase status",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:login": "supabase login"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.1",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

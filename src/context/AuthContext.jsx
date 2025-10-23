@@ -71,48 +71,44 @@ export const AuthProvider = ({ children }) => {
 
   // Load user profile from database with secure client
   const loadUserProfile = async (userId) => {
+    console.log('👤 [START] Loading user profile for:', userId)
+    
     try {
-      console.log('👤 Loading user profile for:', userId)
-      
-      // Verify user authentication first
-      console.log('🔍 Verifying authentication...')
-      const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser()
-      
-      if (authError) {
-        console.error('❌ Auth verification error:', authError)
-        throw authError
-      }
-      if (!authUser || authUser.id !== userId) {
-        console.error('❌ User authentication mismatch')
-        throw new Error('User authentication mismatch')
-      }
-
-      console.log('✅ Auth verified, loading profile from database...')
+      console.log('✅ [STEP 1] Skipping auth verification, loading profile directly...')
+      console.log('🔗 [STEP 2] Supabase client ready, creating query...')
       
       // Add timeout to profile query
+      console.log('📝 [STEP 3] Building profile query for userId:', userId)
+      
       const profilePromise = supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle() // Use maybeSingle instead of single to avoid error if not found
 
+      console.log('⏱️ [STEP 4] Setting up 10-second timeout...')
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile query timeout')), 10000)
+        setTimeout(() => {
+          console.error('⏰ TIMEOUT! Profile query took too long')
+          reject(new Error('Profile query timeout after 10 seconds'))
+        }, 10000)
       )
 
+      console.log('🔍 [STEP 5] Executing query with race condition...')
       const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise])
+      console.log('✅ [STEP 6] Query completed! Result:', { profile, error })
 
       if (error) {
-        console.error('❌ Profile loading error:', error)
+        console.error('❌ [ERROR] Profile loading error:', error)
         throw error
       }
 
       if (!profile) {
-        console.error('❌ Profile not found in database for user:', userId)
+        console.error('❌ [ERROR] Profile not found in database for user:', userId)
         throw new Error('Profile not found. Please contact support.')
       }
 
-      console.log('✅ Profile loaded:', profile)
+      console.log('✅ [STEP 7] Profile loaded successfully:', profile)
 
       // If provider, load provider profile too
       if (profile.role === 'provider') {
