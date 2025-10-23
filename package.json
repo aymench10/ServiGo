@@ -11,6 +11,8 @@
     "test-supabase": "node test-supabase.js",
     "sql": "node run-sql.js",
     "sql:ps": "powershell -ExecutionPolicy Bypass -File run-sql.ps1",
+    "fix:auth": "powershell -ExecutionPolicy Bypass -File run-all-fixes.ps1",
+    "verify:supabase": "powershell -ExecutionPolicy Bypass -File verify-supabase.ps1",
     "supabase:status": "supabase status",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
