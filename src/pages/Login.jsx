@@ -30,23 +30,30 @@ const Login = () => {
     setLoading(true)
     
     try {
+      console.log('🔐 Attempting login...')
       const result = await login(formData.email, formData.password)
+      console.log('🔐 Login result:', result)
       
       if (result.success) {
-        // Wait a moment for user state to update, then navigate
+        console.log('✅ Login successful, waiting for user state update...')
+        // Navigation will be handled by the useEffect above when user state updates
+        // Set a timeout as fallback in case user state doesn't update
         setTimeout(() => {
-          // Navigation will be handled by the useEffect above
-          // But if it doesn't work, we force it here
+          console.log('⏰ Timeout reached, checking user state...')
           if (!user) {
-            window.location.href = '/'
+            console.error('❌ User state not updated after login')
+            setError('Erreur: La session n\'a pas pu être établie. Veuillez réessayer.')
+            setLoading(false)
           }
-        }, 500)
+        }, 5000) // 5 second timeout
       } else {
+        console.error('❌ Login failed:', result.error)
         setError(result.error || 'Erreur de connexion')
         setLoading(false)
       }
     } catch (err) {
-      setError('Une erreur est survenue')
+      console.error('❌ Login exception:', err)
+      setError('Une erreur est survenue: ' + err.message)
       setLoading(false)
     }
   }

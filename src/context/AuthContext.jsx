@@ -72,36 +72,75 @@ export const AuthProvider = ({ children }) => {
   // Load user profile from database with secure client
   const loadUserProfile = async (userId) => {
     try {
+      console.log('👤 Loading user profile for:', userId)
+      
       // Verify user authentication first
+      console.log('🔍 Verifying authentication...')
       const { data: { user: authUser }, error: authError } = await supabaseClient.auth.getUser()
       
-      if (authError) throw authError
+      if (authError) {
+        console.error('❌ Auth verification error:', authError)
+        throw authError
+      }
       if (!authUser || authUser.id !== userId) {
+        console.error('❌ User authentication mismatch')
         throw new Error('User authentication mismatch')
       }
 
-      const { data: profile, error } = await supabaseClient
+      console.log('✅ Auth verified, loading profile from database...')
+      
+      // Add timeout to profile query
+      const profilePromise = supabaseClient
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle() // Use maybeSingle instead of single to avoid error if not found
 
-      if (error) throw error
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile query timeout')), 10000)
+      )
+
+      const { data: profile, error } = await Promise.race([profilePromise, timeoutPromise])
+
+      if (error) {
+        console.error('❌ Profile loading error:', error)
+        throw error
+      }
+
+      if (!profile) {
+        console.error('❌ Profile not found in database for user:', userId)
+        throw new Error('Profile not found. Please contact support.')
+      }
+
+      console.log('✅ Profile loaded:', profile)
 
       // If provider, load provider profile too
       if (profile.role === 'provider') {
-        const { data: providerProfile } = await supabaseClient
+        console.log('👨‍💼 Loading provider profile...')
+        const { data: providerProfile, error: providerError } = await supabaseClient
           .from('provider_profiles')
           .select('*')
           .eq('user_id', userId)
-          .single()
+          .maybeSingle()
 
-        setUser({ ...profile, providerProfile })
+        if (providerError) {
+          console.warn('⚠️ Provider profile error:', providerError.message)
+          setUser({ ...profile, providerProfile: null })
+        } else if (!providerProfile) {
+          console.warn('⚠️ Provider profile not found - user should visit /fix-profile')
+          setUser({ ...profile, providerProfile: null })
+        } else {
+          console.log('✅ Provider profile loaded:', providerProfile)
+          setUser({ ...profile, providerProfile })
+        }
       } else {
         setUser(profile)
       }
+      
+      console.log('✅ User state updated successfully')
     } catch (error) {
-      console.error('Error loading profile:', error)
+      console.error('❌ Error loading profile:', error)
+      console.error('❌ Error details:', error.message, error.code)
       setUser(null)
     } finally {
       setLoading(false)
