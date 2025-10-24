@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!profile) {
         console.error('❌ [ERROR] Profile not found in database for user:', userId)
-        throw new Error('Profile not found. Please contact support.')
+        throw new Error('Profile not found')
       }
 
       console.log('✅ [STEP 7] Profile loaded successfully:', profile)
@@ -134,10 +134,12 @@ export const AuthProvider = ({ children }) => {
       }
       
       console.log('✅ User state updated successfully')
+      return profile // Return the profile for confirmation
     } catch (error) {
       console.error('❌ Error loading profile:', error)
       console.error('❌ Error details:', error.message, error.code)
-      setUser(null)
+      // Don't set user to null during signup - let retry logic handle it
+      throw error
     } finally {
       setLoading(false)
     }
@@ -224,8 +226,31 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // Load the complete profile
-      await loadUserProfile(userId)
+      // Wait a moment for database to commit
+      console.log('⏳ Waiting for database commit...')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Load the complete profile with retry logic
+      console.log('📥 Loading user profile...')
+      let retries = 3
+      let profileLoaded = false
+      
+      while (retries > 0 && !profileLoaded) {
+        try {
+          await loadUserProfile(userId)
+          profileLoaded = true
+          console.log('✅ Profile loaded successfully')
+        } catch (error) {
+          retries--
+          console.warn(`⚠️ Profile load attempt failed, ${retries} retries left`)
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+          } else {
+            console.error('❌ Failed to load profile after all retries')
+            throw error
+          }
+        }
+      }
 
       return { success: true }
     } catch (error) {

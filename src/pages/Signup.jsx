@@ -28,11 +28,7 @@ const Signup = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (user) {
-      if (user.role === 'provider') {
-        navigate('/provider/dashboard')
-      } else {
-        navigate('/client/dashboard')
-      }
+      navigate('/')
     }
   }, [user, navigate])
 
